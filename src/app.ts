@@ -1,10 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import pdfRouter from './routes/pdf.routes';
+import { loggingMiddleware } from './middlewares/logging.middleware';
+import { errorMiddleware } from './middlewares/error.middleware';
 
 const app = express();
 
 // Middleware
+app.use(loggingMiddleware);
 app.use(cors());
 app.use(express.json());
 
@@ -32,5 +35,8 @@ app.use((req, res) => {
     message: `Cannot ${req.method} ${req.url}`
   });
 });
+
+// Global Error Handler
+app.use(errorMiddleware);
 
 export default app;

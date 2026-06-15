@@ -12,7 +12,7 @@ export class PdfController {
   public async generateWorldCupPdf(
     req: Request,
     res: Response,
-    _next: NextFunction
+    next: NextFunction
   ): Promise<void> {
     try {
       // 1. Validate query parameters using Zod
@@ -42,12 +42,7 @@ export class PdfController {
       // 5. Finalize the PDF document
       doc.end();
     } catch (error: unknown) {
-      console.error('Error generating PDF:', error);
-      res.status(500).json({
-        status: 'error',
-        message: 'Internal server error',
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-      });
+      next(error);
     }
   }
 }

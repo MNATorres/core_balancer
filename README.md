@@ -10,6 +10,8 @@ A modern, high-performance, and beautifully designed Node.js microservice writte
 - **Interactive PDF Generation**: Custom-designed 2-page A4 PDF documents built dynamically using `pdfkit`. Includes color themes, grid-based layouts for group stages, and tournament statistics cards.
 - **Robust Schema Validation**: Request queries are strictly validated using `zod`.
 - **Environment Management**: Port configuration validated using Zod at startup.
+- **Correlation ID & Pino Interceptor**: Injects a unique `correlationId` into every request/response (via header `X-Correlation-Id`) and logs request entry and completion (including process duration in `ms`) using `pino`.
+- **Global Error Logging**: Catches exceptions in a centralized error middleware, logging them with their stack trace and correlation ID in structured format.
 - **Modern ESLint Flat Config**: Clean codebase with TypeScript linting rules.
 - **Native Unit Testing**: Utilizes Node's native test runner (`node:test`) for lightweight, zero-dependency testing.
 - **CI/CD Integration**: Pre-configured GitHub Actions workflow running tests, linting, and build steps across multiple Node.js versions.
@@ -23,6 +25,7 @@ A modern, high-performance, and beautifully designed Node.js microservice writte
 - **Framework**: Express
 - **PDF Engine**: PDFKit
 - **Validation**: Zod
+- **Logging**: Pino & Pino-Pretty
 - **Linter**: ESLint (v9)
 - **Test Runner**: Node's Native Test Runner + Assert
 
@@ -37,11 +40,15 @@ core_balancer/
 │       └── ci.yml             # GitHub Actions CI pipeline
 ├── src/
 │   ├── config/
-│   │   └── env.ts             # Zod environment variable validation
+│   │   ├── env.ts             # Zod environment variable validation
+│   │   └── logger.ts          # Pino logger setup (custom formats, timestamp, level)
 │   ├── controllers/
 │   │   └── pdf.controller.ts  # Endpoint handlers (orchestrates request & response)
 │   ├── data/
 │   │   └── teams.ts           # Mock database representing World Cup data
+│   ├── middlewares/
+│   │   ├── error.middleware.ts   # Centralized error logger & handler with correlationId
+│   │   └── logging.middleware.ts # Request/Response interceptor mapping correlationId & ms
 │   ├── routes/
 │   │   └── pdf.routes.ts      # Express routes declaration
 │   ├── schemas/
@@ -49,6 +56,8 @@ core_balancer/
 │   │   └── pdf.schema.test.ts # Native Unit Tests for the query validation schema
 │   ├── services/
 │   │   └── pdf.service.ts     # Business logic & design layout rendering (PDFKit)
+│   ├── types/
+│   │   └── request.ts         # Type definitions extending Express.Request
 │   ├── app.ts                 # Express middlewares & router setup
 │   └── index.ts               # Entrypoint (starts server on port)
 ├── .env                       # Local environment variables
