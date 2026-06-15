@@ -4,7 +4,87 @@ A modern, high-performance, and beautifully designed Node.js microservice writte
 
 ---
 
-## 📐 Architecture & Request Flow
+## 📐 Infrastructure & Application Architecture
+
+### 🏗️ OpenShift Infrastructure Architecture
+
+This diagram details the high-availability infrastructure deployed on Red Hat OpenShift, outlining the ingress, load balancing, compute pod configurations, and the dynamic scaling behavior managed by the Horizontal Pod Autoscaler (HPA).
+
+```mermaid
+graph TD
+    %% External Client Layer
+    subgraph External["Capa Externa"]
+        Client["📱 Cliente / Navegador<br/>(HTTP POST Requests)"]
+    end
+
+    %% Ingress/Routing Layer
+    subgraph IngressLayer["Capa de Ruteado de OpenShift"]
+        Route["🌐 Route (OpenShift Ingress)<br/>Public HTTPS Entrypoint"]
+    end
+
+    %% Kubernetes Cluster / Project Namespace
+    subgraph Cluster["OpenShift Cluster (Namespace: mnatorres-dev)"]
+        
+        subgraph InternalLB["Capa de Balanceo Interno"]
+            Service["⚙️ Service (Core-Balancer-Service)<br/>Internal ClusterIP Load Balancer"]
+        end
+
+        subgraph Compute["Capa de Cómputo Elástico (Deployment: core-balancer-git)"]
+            
+            subgraph ActivePods["Pods Activos (Alta Disponibilidad)"]
+                Pod1["📦 Pod 1<br/>• OS: Alpine (Node.js 20 / TS)<br/>• Express: Port 3000<br/>• CPU: 1 Core (Single Thread)<br/>• Engine: PDFKit (Response Stream)"]
+                Pod2["📦 Pod 2<br/>• OS: Alpine (Node.js 20 / TS)<br/>• Express: Port 3000<br/>• CPU: 1 Core (Single Thread)<br/>• Engine: PDFKit (Response Stream)"]
+            end
+            
+            subgraph ScaledPods["Pods Dinámicos (Escalados por HPA)"]
+                Pod3["📦 Pod 3 (Escalado)<br/>• OS: Alpine (Node.js 20)<br/>• Express: Port 3000<br/>• CPU: 1 Core (Single Thread)<br/>• Engine: PDFKit"]
+                Pod4["📦 Pod 4 (Escalado)<br/>• OS: Alpine (Node.js 20)<br/>• Express: Port 3000<br/>• CPU: 1 Core (Single Thread)<br/>• Engine: PDFKit"]
+            end
+        end
+
+        subgraph ControlPlane["Capa de Monitoreo y Escalado"]
+            HPA["⚖️ Horizontal Pod Autoscaler (HPA)<br/>Metric: CPU Utilization > 70%"]
+        end
+    end
+
+    %% Traffic Flow Connections
+    Client -->|1. HTTP POST Request| Route
+    Route -->|2. HTTPS Forward| Service
+    Service -->|3. Load Balances Traffic| Pod1
+    Service -->|3. Load Balances Traffic| Pod2
+    
+    %% Stream Responses back to Client
+    Pod1 -.-->|4. Stream Response (PDFKit)| Client
+    Pod2 -.-->|4. Stream Response (PDFKit)| Client
+    
+    %% Scaling & Monitoring Flows
+    HPA -.->|Monitorea CPU > 70%| Pod1
+    HPA -.->|Monitorea CPU > 70%| Pod2
+    HPA ===>|Escala Deployment| Compute
+    Compute -.->|Levanta Pods Adicionales| Pod3
+    Compute -.->|Levanta Pods Adicionales| Pod4
+
+    %% Styling (dark text for maximum readability, greens and dark grays)
+    classDef client fill:#cfd8dc,stroke:#37474f,stroke-width:2px,color:#1a252c,font-weight:bold;
+    classDef route fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#0b2e13,font-weight:bold;
+    classDef service fill:#b2dfdb,stroke:#00695c,stroke-width:2px,color:#002f2b,font-weight:bold;
+    classDef podActive fill:#a5d6a7,stroke:#1b5e20,stroke-width:2px,color:#0b2e13;
+    classDef podScaled fill:#cfd8dc,stroke:#546e7a,stroke-width:2px,color:#263238,stroke-dasharray: 5 5;
+    classDef hpa fill:#ffe082,stroke:#ff8f00,stroke-width:2px,color:#4e3400,font-weight:bold;
+    
+    class Client client;
+    class Route route;
+    class Service service;
+    class Pod1,Pod2 podActive;
+    class Pod3,Pod4 podScaled;
+    class HPA hpa;
+```
+
+---
+
+### 🔄 Internal Request Flow
+
+This diagram illustrates the internal processing logic of requests within the microservice codebase:
 
 ```mermaid
 graph TD
