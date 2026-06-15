@@ -29,9 +29,9 @@ graph TD
     PDFKit -->|8. Return PDF Document Stream| PDFController
     PDFController -->|9. Pipe binary stream to Response| Client
     
-    classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px,color:#000000;
     classDef highlight fill:#d4af37,stroke:#1b4332,stroke-width:2px,color:#1b4332;
-    classDef middleware fill:#f4f9f4,stroke:#2d6a4f,stroke-width:1.5px;
+    classDef middleware fill:#f4f9f4,stroke:#2d6a4f,stroke-width:1.5px,color:#1b4332;
     
     class Client,PDFKit highlight;
     class LoggingMW,ErrorMW middleware;
