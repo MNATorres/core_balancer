@@ -13,15 +13,18 @@ export function errorMiddleware(
   const errorStack = err instanceof Error ? err.stack : undefined;
 
   // Log Error with correlation ID and Stack Trace
-  logger.error({
-    method: req.method,
-    correlationId,
-    message: `Request failed: ${req.method} ${req.url} - Error: ${errorMessage}`,
-    err: {
-      message: errorMessage,
-      stack: errorStack
-    }
-  });
+  logger.error(
+    {
+      method: req.method,
+      route: req.originalUrl || req.url,
+      correlationId,
+      err: {
+        message: errorMessage,
+        stack: errorStack
+      }
+    },
+    `✖ Request Failed (Error: ${errorMessage})`
+  );
 
   res.status(500).json({
     status: 'error',

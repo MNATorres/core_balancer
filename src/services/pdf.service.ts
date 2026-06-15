@@ -27,6 +27,12 @@ export class PdfService {
     const TEXT_DARK = '#1b1b1b';
     const TEXT_MUTED = '#555555';
 
+    const col1X = 50;
+    const col2X = 310;
+    const colWidth = 235.28;
+    const groupHeight = 115;
+    const cardWidth = 495.28; // 595.28 - 100 (margins)
+
     // ==========================================
     // PAGE 1: HEADER & GROUPS A-D
     // ==========================================
@@ -48,12 +54,11 @@ export class PdfService {
     doc.fillColor('#ffffff')
        .font('Helvetica')
        .fontSize(9)
-       .text(`Host Country: ${data.host}   |   Champion: ${data.champion} (${data.championCode})`, 50, 78);
+       .text(`Host Country: ${data.host}   |   Status: ${data.champion === 'TBD (Ongoing)' ? 'Tournament Ongoing' : `Champion: ${data.champion}`}`, 50, 78);
 
     // Tournament Details Card (below banner)
     const cardY = 130;
     const cardHeight = 65;
-    const cardWidth = 495.28; // 595.28 - 100 (margins)
 
     doc.roundedRect(50, cardY, cardWidth, cardHeight, 6)
        .fillAndStroke(LIGHT_BG, SECONDARY_COLOR);
@@ -66,13 +71,19 @@ export class PdfService {
     doc.fillColor(TEXT_DARK)
        .font('Helvetica')
        .fontSize(9)
-       .text(`• Host Country: ${data.host}`, 65, cardY + 30)
-       .text(`• Champion: ${data.champion}`, 65, cardY + 45);
+       .text(`• Host: ${data.host}`, 65, cardY + 30);
+    
+    if (data.champion === 'TBD (Ongoing)') {
+      doc.text(`• Status: Ongoing Match Fixtures`, 65, cardY + 45)
+         .text(`• Formats: 12 Groups / 48 Teams`, 250, cardY + 30)
+         .text(`• Stage: Group Phase & Play-offs`, 250, cardY + 45);
+    } else {
+      doc.text(`• Champion: ${data.champion} (${data.championCode})`, 65, cardY + 45)
+         .text(`• Runner-up: ${data.runnerUp} (${data.runnerUpCode})`, 250, cardY + 30)
+         .text(`• Teams: 32 Participants`, 250, cardY + 45);
+    }
 
-    doc.text(`• Runner-up: ${data.runnerUp} (${data.runnerUpCode})`, 250, cardY + 30)
-       .text(`• Number of Teams: 32 Teams`, 250, cardY + 45);
-
-    // Section Title for Groups
+    // Section Title for Groups A-D
     doc.fillColor(PRIMARY_COLOR)
        .font('Helvetica-Bold')
        .fontSize(14)
@@ -85,12 +96,6 @@ export class PdfService {
        .stroke();
 
     // Draw Groups A to D
-    // Column 1 (left): x=50, width=235. Column 2 (right): x=310, width=235.
-    const col1X = 50;
-    const col2X = 310;
-    const colWidth = 235.28;
-    const groupHeight = 115;
-
     // Group A (Col 1, Row 1)
     this.drawGroupBox(doc, data.groups[0], col1X, 250, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
     // Group B (Col 2, Row 1)
@@ -105,93 +110,186 @@ export class PdfService {
     doc.fillColor(TEXT_MUTED)
        .font('Helvetica-Oblique')
        .fontSize(8.5)
-       .text('Note: FIFA Rankings displayed inside group boxes represent the rankings leading up to the tournament.', 50, 740, { width: 495.28 });
+       .text('Note: FIFA Rankings displayed inside group boxes represent the rankings leading up to the tournament.', 50, 740, { width: cardWidth });
 
     // ==========================================
-    // PAGE 2: GROUPS E-H & STATS SUMMARY
+    // PAGE 2: GROUPS E-H (OR E-L FOR 2026) & STATS
     // ==========================================
     doc.addPage();
 
-    // Small Uniform Header for Page 2
-    doc.rect(0, 0, 595.28, 60).fill(PRIMARY_COLOR);
-    doc.fillColor('#ffffff')
-       .font('Helvetica-Bold')
-       .fontSize(14)
-       .text(`FIFA WORLD CUP ${data.year} - GROUPS E - H`, 50, 22);
+    const is2026 = data.groups.length === 12;
 
-    // Section Title
-    doc.fillColor(PRIMARY_COLOR)
-       .font('Helvetica-Bold')
-       .fontSize(14)
-       .text('GROUPS E - H', 50, 85);
+    if (is2026) {
+      // 2026 WORLD CUP (12 GROUPS A-L)
+      
+      // Small Header for Page 2
+      doc.rect(0, 0, 595.28, 60).fill(PRIMARY_COLOR);
+      doc.fillColor('#ffffff')
+         .font('Helvetica-Bold')
+         .fontSize(14)
+         .text(`FIFA WORLD CUP ${data.year} - GROUPS E - L`, 50, 22);
 
-    doc.moveTo(50, 103)
-       .lineTo(545.28, 103)
-       .strokeColor(SECONDARY_COLOR)
-       .lineWidth(1.5)
-       .stroke();
+      // Section Title
+      doc.fillColor(PRIMARY_COLOR)
+         .font('Helvetica-Bold')
+         .fontSize(14)
+         .text('GROUPS E - L', 50, 85);
 
-    // Group E (Col 1, Row 1)
-    this.drawGroupBox(doc, data.groups[4], col1X, 120, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
-    // Group F (Col 2, Row 1)
-    this.drawGroupBox(doc, data.groups[5], col2X, 120, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
+      doc.moveTo(50, 103)
+         .lineTo(545.28, 103)
+         .strokeColor(SECONDARY_COLOR)
+         .lineWidth(1.5)
+         .stroke();
 
-    // Group G (Col 1, Row 2)
-    this.drawGroupBox(doc, data.groups[6], col1X, 255, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
-    // Group H (Col 2, Row 2)
-    this.drawGroupBox(doc, data.groups[7], col2X, 255, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
+      // Row 1 (Groups E & F)
+      this.drawGroupBox(doc, data.groups[4], col1X, 120, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
+      this.drawGroupBox(doc, data.groups[5], col2X, 120, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
 
-    // Premium Analytics Card on Page 2
-    const statsY = 400;
-    const statsHeight = 180;
-    doc.roundedRect(50, statsY, cardWidth, statsHeight, 8)
-       .fillAndStroke(LIGHT_BG, PRIMARY_COLOR);
+      // Row 2 (Groups G & H)
+      this.drawGroupBox(doc, data.groups[6], col1X, 250, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
+      this.drawGroupBox(doc, data.groups[7], col2X, 250, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
 
-    doc.fillColor(PRIMARY_COLOR)
-       .font('Helvetica-Bold')
-       .fontSize(12)
-       .text('TECHNICAL & STATISTICAL OVERVIEW', 70, statsY + 15);
+      // Row 3 (Groups I & J)
+      this.drawGroupBox(doc, data.groups[8], col1X, 380, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
+      this.drawGroupBox(doc, data.groups[9], col2X, 380, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
 
-    doc.moveTo(70, statsY + 32)
-       .lineTo(525.28, statsY + 32)
-       .strokeColor(SECONDARY_COLOR)
-       .lineWidth(0.8)
-       .stroke();
+      // Row 4 (Groups K & L)
+      this.drawGroupBox(doc, data.groups[10], col1X, 510, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
+      this.drawGroupBox(doc, data.groups[11], col2X, 510, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
 
-    // Column 1 in Stats
-    doc.fillColor(TEXT_DARK)
-       .font('Helvetica-Bold')
-       .fontSize(9.5)
-       .text('Top FIFA Seeded Teams in Tournament:', 70, statsY + 45);
+      // Technical Overview Card (y=640, height=105)
+      const statsY = 640;
+      const statsHeight = 105;
+      
+      doc.roundedRect(50, statsY, cardWidth, statsHeight, 8)
+         .fillAndStroke(LIGHT_BG, PRIMARY_COLOR);
 
-    // Filter top teams (ranking <= 10)
-    const topTeams = data.groups
-      .flatMap(g => g.teams.map(t => ({ ...t, groupName: g.name })))
-      .filter(t => t.ranking !== undefined && t.ranking <= 10)
-      .sort((a, b) => (a.ranking || 99) - (b.ranking || 99))
-      .slice(0, 5);
+      doc.fillColor(PRIMARY_COLOR)
+         .font('Helvetica-Bold')
+         .fontSize(11)
+         .text('TECHNICAL & STATISTICAL OVERVIEW (48 TEAMS)', 70, statsY + 12);
 
-    let listY = statsY + 65;
-    topTeams.forEach((t) => {
+      doc.moveTo(70, statsY + 26)
+         .lineTo(525.28, statsY + 26)
+         .strokeColor(SECONDARY_COLOR)
+         .lineWidth(0.8)
+         .stroke();
+
+      // Top Teams (Left Column)
+      doc.fillColor(TEXT_DARK)
+         .font('Helvetica-Bold')
+         .fontSize(8.5)
+         .text('Top Seeded FIFA Teams (Current):', 70, statsY + 34);
+
+      const topTeams = data.groups
+        .flatMap(g => g.teams.map(t => ({ ...t, groupName: g.name })))
+        .filter(t => t.ranking !== undefined && t.ranking <= 10)
+        .sort((a, b) => (a.ranking || 99) - (b.ranking || 99))
+        .slice(0, 4);
+
+      let listY = statsY + 47;
+      topTeams.forEach((t) => {
+        doc.font('Helvetica')
+           .fontSize(8)
+           .text(`• FIFA Rank #${t.ranking}: ${t.name} (${t.code})`, 75, listY);
+        listY += 12;
+      });
+
+      // Stats Column (Right Column)
+      const col2StatsX = 310;
+      doc.font('Helvetica-Bold')
+         .fontSize(8.5)
+         .text('Tournament Format Details:', col2StatsX, statsY + 34);
+
+      doc.font('Helvetica')
+         .fontSize(8)
+         .text(`• Hosts: ${data.host}`, col2StatsX, statsY + 47)
+         .text(`• Matches: 104 Total matches scheduled`, col2StatsX, statsY + 59)
+         .text(`• Knockouts: Top 2 + 8 Best 3rd-place teams (Round of 32)`, col2StatsX, statsY + 71)
+         .text(`• Generated: ${new Date().toLocaleDateString()} (Live Interceptor)`, col2StatsX, statsY + 83);
+
+    } else {
+      // 2018 & 2022 WORLD CUPS (8 GROUPS A-H)
+      
+      // Small Header for Page 2
+      doc.rect(0, 0, 595.28, 60).fill(PRIMARY_COLOR);
+      doc.fillColor('#ffffff')
+         .font('Helvetica-Bold')
+         .fontSize(14)
+         .text(`FIFA WORLD CUP ${data.year} - GROUPS E - H`, 50, 22);
+
+      // Section Title
+      doc.fillColor(PRIMARY_COLOR)
+         .font('Helvetica-Bold')
+         .fontSize(14)
+         .text('GROUPS E - H', 50, 85);
+
+      doc.moveTo(50, 103)
+         .lineTo(545.28, 103)
+         .strokeColor(SECONDARY_COLOR)
+         .lineWidth(1.5)
+         .stroke();
+
+      // Row 1 (Groups E & F)
+      this.drawGroupBox(doc, data.groups[4], col1X, 120, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
+      this.drawGroupBox(doc, data.groups[5], col2X, 120, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
+
+      // Row 2 (Groups G & H)
+      this.drawGroupBox(doc, data.groups[6], col1X, 255, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
+      this.drawGroupBox(doc, data.groups[7], col2X, 255, colWidth, groupHeight, PRIMARY_COLOR, SECONDARY_COLOR, TEXT_DARK);
+
+      // Technical Overview Card (y=400, height=180)
+      const statsY = 400;
+      const statsHeight = 180;
+      
+      doc.roundedRect(50, statsY, cardWidth, statsHeight, 8)
+         .fillAndStroke(LIGHT_BG, PRIMARY_COLOR);
+
+      doc.fillColor(PRIMARY_COLOR)
+         .font('Helvetica-Bold')
+         .fontSize(12)
+         .text('TECHNICAL & STATISTICAL OVERVIEW', 70, statsY + 15);
+
+      doc.moveTo(70, statsY + 32)
+         .lineTo(525.28, statsY + 32)
+         .strokeColor(SECONDARY_COLOR)
+         .lineWidth(0.8)
+         .stroke();
+
+      // Top Teams (Left Column)
+      doc.fillColor(TEXT_DARK)
+         .font('Helvetica-Bold')
+         .fontSize(9.5)
+         .text('Top FIFA Seeded Teams in Tournament:', 70, statsY + 45);
+
+      const topTeams = data.groups
+        .flatMap(g => g.teams.map(t => ({ ...t, groupName: g.name })))
+        .filter(t => t.ranking !== undefined && t.ranking <= 10)
+        .sort((a, b) => (a.ranking || 99) - (b.ranking || 99))
+        .slice(0, 5);
+
+      let listY = statsY + 65;
+      topTeams.forEach((t) => {
+        doc.font('Helvetica')
+           .fontSize(9)
+           .text(`• FIFA Rank #${t.ranking}: ${t.name} (${t.code}) - ${t.groupName}`, 75, listY);
+        listY += 15;
+      });
+
+      // Stats Column (Right Column)
+      const col2StatsX = 310;
+      doc.font('Helvetica-Bold')
+         .fontSize(9.5)
+         .text('Tournament Facts:', col2StatsX, statsY + 45);
+
       doc.font('Helvetica')
          .fontSize(9)
-         .text(`• FIFA Rank #${t.ranking}: ${t.name} (${t.code}) - ${t.groupName}`, 75, listY);
-      listY += 15;
-    });
-
-    // Column 2 in Stats (Information/Trivia)
-    const col2StatsX = 310;
-    doc.font('Helvetica-Bold')
-       .fontSize(9.5)
-       .text('Tournament Facts:', col2StatsX, statsY + 45);
-
-    doc.font('Helvetica')
-       .fontSize(9)
-       .text(`• Champion: ${data.champion} (${data.championCode})`, col2StatsX, statsY + 65)
-       .text(`• Runner-up: ${data.runnerUp} (${data.runnerUpCode})`, col2StatsX, statsY + 80)
-       .text(`• Microservice: Node.js PDF Generator`, col2StatsX, statsY + 95)
-       .text(`• Stack: TS + Zod + PDFKit + Express`, col2StatsX, statsY + 110)
-       .text(`• Generation Time: ${new Date().toLocaleDateString()}`, col2StatsX, statsY + 125);
+         .text(`• Champion: ${data.champion} (${data.championCode})`, col2StatsX, statsY + 65)
+         .text(`• Runner-up: ${data.runnerUp} (${data.runnerUpCode})`, col2StatsX, statsY + 80)
+         .text(`• Microservice: Node.js PDF Generator`, col2StatsX, statsY + 95)
+         .text(`• Stack: TS + Zod + PDFKit + Express`, col2StatsX, statsY + 110)
+         .text(`• Generation Time: ${new Date().toLocaleDateString()}`, col2StatsX, statsY + 125);
+    }
 
     // Decorative footer message
     doc.fillColor(SECONDARY_COLOR)

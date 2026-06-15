@@ -20,6 +20,124 @@ export interface WorldCupEdition {
 }
 
 export const worldCupData: Record<number, WorldCupEdition> = {
+  2026: {
+    year: 2026,
+    host: 'Canada, Mexico, United States',
+    champion: 'TBD (Ongoing)',
+    championCode: 'TBD',
+    runnerUp: 'TBD (Ongoing)',
+    runnerUpCode: 'TBD',
+    groups: [
+      {
+        name: 'Group A',
+        teams: [
+          { name: 'Mexico', code: 'MEX', ranking: 15 },
+          { name: 'South Korea', code: 'KOR', ranking: 23 },
+          { name: 'Czechia', code: 'CZE', ranking: 36 },
+          { name: 'South Africa', code: 'RSA', ranking: 59 }
+        ]
+      },
+      {
+        name: 'Group B',
+        teams: [
+          { name: 'Switzerland', code: 'SUI', ranking: 19 },
+          { name: 'Qatar', code: 'QAT', ranking: 34 },
+          { name: 'Canada', code: 'CAN', ranking: 40 },
+          { name: 'Bosnia & Herz.', code: 'BIH', ranking: 74 }
+        ]
+      },
+      {
+        name: 'Group C',
+        teams: [
+          { name: 'Brazil', code: 'BRA', ranking: 5 },
+          { name: 'Morocco', code: 'MAR', ranking: 12 },
+          { name: 'Scotland', code: 'SCO', ranking: 39 },
+          { name: 'Haiti', code: 'HAI', ranking: 85 }
+        ]
+      },
+      {
+        name: 'Group D',
+        teams: [
+          { name: 'United States', code: 'USA', ranking: 11 },
+          { name: 'Australia', code: 'AUS', ranking: 24 },
+          { name: 'Türkiye', code: 'TUR', ranking: 35 },
+          { name: 'Paraguay', code: 'PAR', ranking: 56 }
+        ]
+      },
+      {
+        name: 'Group E',
+        teams: [
+          { name: 'Ecuador', code: 'ECU', ranking: 31 },
+          { name: 'Côte d\'Ivoire', code: 'CIV', ranking: 38 },
+          { name: 'Germany', code: 'GER', ranking: 16 },
+          { name: 'Curaçao', code: 'CUW', ranking: 86 }
+        ]
+      },
+      {
+        name: 'Group F',
+        teams: [
+          { name: 'Netherlands', code: 'NED', ranking: 7 },
+          { name: 'Japan', code: 'JPN', ranking: 18 },
+          { name: 'Sweden', code: 'SWE', ranking: 28 },
+          { name: 'Tunisia', code: 'TUN', ranking: 41 }
+        ]
+      },
+      {
+        name: 'Group G',
+        teams: [
+          { name: 'Belgium', code: 'BEL', ranking: 6 },
+          { name: 'Iran', code: 'IRN', ranking: 20 },
+          { name: 'Egypt', code: 'EGY', ranking: 30 },
+          { name: 'New Zealand', code: 'NZL', ranking: 104 }
+        ]
+      },
+      {
+        name: 'Group H',
+        teams: [
+          { name: 'Spain', code: 'ESP', ranking: 3 },
+          { name: 'Uruguay', code: 'URU', ranking: 15 },
+          { name: 'Saudi Arabia', code: 'KSA', ranking: 57 },
+          { name: 'Cabo Verde', code: 'CPV', ranking: 65 }
+        ]
+      },
+      {
+        name: 'Group I',
+        teams: [
+          { name: 'France', code: 'FRA', ranking: 2 },
+          { name: 'Senegal', code: 'SEN', ranking: 21 },
+          { name: 'Norway', code: 'NOR', ranking: 47 },
+          { name: 'Iraq', code: 'IRQ', ranking: 58 }
+        ]
+      },
+      {
+        name: 'Group J',
+        teams: [
+          { name: 'Argentina', code: 'ARG', ranking: 1 },
+          { name: 'Austria', code: 'AUT', ranking: 22 },
+          { name: 'Algeria', code: 'ALG', ranking: 43 },
+          { name: 'Jordan', code: 'JOR', ranking: 71 }
+        ]
+      },
+      {
+        name: 'Group K',
+        teams: [
+          { name: 'Portugal', code: 'POR', ranking: 8 },
+          { name: 'Colombia', code: 'COL', ranking: 12 },
+          { name: 'DR Congo', code: 'COD', ranking: 61 },
+          { name: 'Uzbekistan', code: 'UZB', ranking: 64 }
+        ]
+      },
+      {
+        name: 'Group L',
+        teams: [
+          { name: 'England', code: 'ENG', ranking: 4 },
+          { name: 'Croatia', code: 'CRO', ranking: 10 },
+          { name: 'Panama', code: 'PAN', ranking: 45 },
+          { name: 'Ghana', code: 'GHA', ranking: 68 }
+        ]
+      }
+    ]
+  },
   2022: {
     year: 2022,
     host: 'Qatar',
