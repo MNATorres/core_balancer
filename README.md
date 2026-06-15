@@ -54,13 +54,13 @@ graph TD
     Service -->|3. Load Balances Traffic| Pod2
     
     %% Stream Responses back to Client
-    Pod1 -.-->|4. Stream Response (PDFKit)| Client
-    Pod2 -.-->|4. Stream Response (PDFKit)| Client
+    Pod1 -.->|4. Stream Response (PDFKit)| Client
+    Pod2 -.->|4. Stream Response (PDFKit)| Client
     
     %% Scaling & Monitoring Flows
     HPA -.->|Monitorea CPU > 70%| Pod1
     HPA -.->|Monitorea CPU > 70%| Pod2
-    HPA ===>|Escala Deployment| Compute
+    HPA ==>|Escala Deployment| Compute
     Compute -.->|Levanta Pods Adicionales| Pod3
     Compute -.->|Levanta Pods Adicionales| Pod4
 
