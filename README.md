@@ -4,6 +4,41 @@ A modern, high-performance, and beautifully designed Node.js microservice writte
 
 ---
 
+## 📐 Architecture & Request Flow
+
+```mermaid
+graph TD
+    Client[Client / Postman] -->|1. GET /api/v1/pdf/world-cup| LoggingMW[Logging Middleware<br/>Generates correlationId & Logs request]
+    LoggingMW -->|2. Forward Request| ExpressRouter[Express Router]
+    ExpressRouter -->|3. Route Match| PDFController[PDF Controller]
+    
+    subgraph Controller Layer
+        PDFController -->|4. Parse & Validate query| ZodSchema[Zod Validation Schema<br/>pdf.schema.ts]
+        ZodSchema -->|Validation Success| PDFController
+        PDFController -->|Validation Failure| ErrorMW[Global Error Handler<br/>Logs error stack trace & returns 400/500]
+    end
+
+    PDFController -->|5. Request PDF generation| PDFService[PDF Service<br/>pdf.service.ts]
+    
+    subgraph Service Layer & Database
+        PDFService -->|6. Query tournament metadata & teams| MockDB[(Teams Database<br/>teams.ts)]
+        MockDB -->|Return Year Data| PDFService
+        PDFService -->|7. Generate A4 document stream| PDFKit[PDFKit Engine]
+    end
+    
+    PDFKit -->|8. Return PDF Document Stream| PDFController
+    PDFController -->|9. Pipe binary stream to Response| Client
+    
+    classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    classDef highlight fill:#d4af37,stroke:#1b4332,stroke-width:2px,color:#1b4332;
+    classDef middleware fill:#f4f9f4,stroke:#2d6a4f,stroke-width:1.5px;
+    
+    class Client,PDFKit highlight;
+    class LoggingMW,ErrorMW middleware;
+```
+
+---
+
 ## 🚀 Features
 
 - **Layered Architecture**: Clean separation of concerns (Routes → Controllers → Services → Data).
