@@ -4,6 +4,22 @@ A modern, high-performance, and beautifully designed Node.js microservice writte
 
 ---
 
+## 🗺️ Project Roadmap & Implementation Phases (Fases del Proyecto)
+
+To design, test, and analyze high-availability systems under processing stress, this project is structured into progressive architectural phases:
+
+1.  **[Phase 1: Synchronous Elastic Microservice (Current Stage)](./docs/phase-1-synchronous/README.md)**
+    *   Deploys a synchronous HTTP API on Red Hat OpenShift Sandbox.
+    *   Isolates CPU-bound PDF rendering using single-core containers (no PM2/Cluster module).
+    *   Configures an HPA to scale from 2 to 5 replicas based on CPU utilization (>70%).
+    *   *Read the complete technical report, Dockerfile details, and stress-test results in the [Phase 1 Documentation](./docs/phase-1-synchronous/README.md).*
+2.  **Phase 2: Asynchronous Event-Driven Architecture (Upcoming Milestone)**
+    *   Decouples the HTTP channel by introducing a message broker (RabbitMQ) in OpenShift.
+    *   Implements the Competing Consumers pattern with prefetch configuration and ACKs.
+    *   Eliminates connection backlogs and network timeouts by handling rendering tasks asynchronously.
+
+---
+
 ## 📐 Infrastructure & Application Architecture
 
 ### 🏗️ OpenShift Infrastructure Architecture
