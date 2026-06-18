@@ -10,20 +10,76 @@ The primary objective is to isolate a computationally intensive (**CPU-bound**) 
 
 The traffic flow implemented within the OpenShift Namespace `mnatorres-dev` follows a linear, synchronous topology managed by the infrastructure:
 
-```text
-[Client / Autocannon] 
-       │
-       ▼ (HTTP POST / GET)
-[Route (OpenShift Ingress)]
-       │
-       ▼ (Public HTTPS Routing)
-[Service (Core-Balancer-Service)] ───► [Horizontal Pod Autoscaler (HPA)]
-       │                                     │ (Monitors CPU > 70%)
-       ▼ (Internal Round-Robin Balancing)     │
- ┌───────────┴───────────┐                   ▼
- ▼                       ▼             (Scales Dynamically)
-[Pod 1 (1 CPU)]     [Pod 2 (1 CPU)]  ───► [Pod 3, 4, 5... (New Replicas)]
- (Express:3000)      (Express:3000)
+```mermaid
+graph TD
+    %% External Client Layer
+    subgraph External["External Layer"]
+        Client["📱 Client / Autocannon<br/>(HTTP POST / GET Requests)"]
+    end
+
+    %% Ingress/Routing Layer
+    subgraph IngressLayer["OpenShift Routing Layer"]
+        Route["🌐 Route (OpenShift Ingress)<br/>Public HTTPS Entrypoint"]
+    end
+
+    %% Kubernetes Cluster / Project Namespace
+    subgraph Cluster["OpenShift Cluster (Namespace: mnatorres-dev)"]
+        
+        subgraph InternalLB["Internal Load Balancing"]
+            Service["⚙️ Service (Core-Balancer-Service)<br/>Internal ClusterIP Load Balancer"]
+        end
+
+        subgraph Compute["Elastic Compute Layer (Deployment: core-balancer-git)"]
+            
+            subgraph ActivePods["Active Baseline Pods (High Availability)"]
+                Pod1["📦 Pod 1<br/>• OS: Alpine (Node.js 20 / TS)<br/>• Express: Port 3000<br/>• CPU: 1 Core (Single Thread)<br/>• Engine: PDFKit (Response Stream)"]
+                Pod2["📦 Pod 2<br/>• OS: Alpine (Node.js 20 / TS)<br/>• Express: Port 3000<br/>• CPU: 1 Core (Single Thread)<br/>• Engine: PDFKit (Response Stream)"]
+            end
+            
+            subgraph ScaledPods["Dynamic Pods (Scaled by HPA)"]
+                Pod3["📦 Pod 3 (Scaled)<br/>• OS: Alpine (Node.js 20 / TS)<br/>• Express: Port 3000<br/>• CPU: 1 Core (Single Thread)<br/>• Engine: PDFKit"]
+                Pod4["📦 Pod 4 (Scaled)<br/>• OS: Alpine (Node.js 20 / TS)<br/>• Express: Port 3000<br/>• CPU: 1 Core (Single Thread)<br/>• Engine: PDFKit"]
+                Pod5["📦 Pod 5 (Scaled)<br/>• OS: Alpine (Node.js 20 / TS)<br/>• Express: Port 3000<br/>• CPU: 1 Core (Single Thread)<br/>• Engine: PDFKit"]
+            end
+        end
+
+        subgraph ControlPlane["Monitoring & Scaling Layer"]
+            HPA["⚖️ Horizontal Pod Autoscaler (HPA)<br/>Metric: CPU Utilization > 70%"]
+        end
+    end
+
+    %% Traffic Flow Connections
+    Client -->|1. HTTP Request| Route
+    Route -->|2. HTTPS Forward| Service
+    Service -->|3. Load Balances Traffic (Round-Robin)| Pod1
+    Service -->|3. Load Balances Traffic (Round-Robin)| Pod2
+    
+    %% Stream Responses back to Client
+    Pod1 -.->|4. Stream Response - PDFKit| Client
+    Pod2 -.->|4. Stream Response - PDFKit| Client
+    
+    %% Scaling & Monitoring Flows
+    HPA -.->|Monitors CPU Usage| Pod1
+    HPA -.->|Monitors CPU Usage| Pod2
+    HPA ==>|5. Scales Deployment| Compute
+    Compute -.->|Provisions Additional Pods| Pod3
+    Compute -.->|Provisions Additional Pods| Pod4
+    Compute -.->|Provisions Additional Pods| Pod5
+
+    %% Styling (dark text for maximum readability, greens and dark grays)
+    classDef client fill:#cfd8dc,stroke:#37474f,stroke-width:2px,color:#1a252c,font-weight:bold;
+    classDef route fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#0b2e13,font-weight:bold;
+    classDef service fill:#b2dfdb,stroke:#00695c,stroke-width:2px,color:#002f2b,font-weight:bold;
+    classDef podActive fill:#a5d6a7,stroke:#1b5e20,stroke-width:2px,color:#0b2e13;
+    classDef podScaled fill:#cfd8dc,stroke:#546e7a,stroke-width:2px,color:#263238,stroke-dasharray: 5 5;
+    classDef hpa fill:#ffe082,stroke:#ff8f00,stroke-width:2px,color:#4e3400,font-weight:bold;
+    
+    class Client client;
+    class Route route;
+    class Service service;
+    class Pod1,Pod2 podActive;
+    class Pod3,Pod4,Pod5 podScaled;
+    class HPA hpa;
 ```
 
 ### Key Infrastructure Components:
