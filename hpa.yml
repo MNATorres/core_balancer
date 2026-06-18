@@ -1,0 +1,19 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: core-balancer-hpa
+  namespace: mnatorres-dev
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: core-balancer-git # Asegurate de que sea el nombre exacto de tu Deployment
+  minReplicas: 2 # El clúster va a duplicar tu pod actual para arrancar con 2
+  maxReplicas: 5 # Límite máximo para no reventar la cuota gratuita de tu Sandbox
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70 # Si el promedio de CPU pasa el 70%, ¡vuelan nuevos pods!
