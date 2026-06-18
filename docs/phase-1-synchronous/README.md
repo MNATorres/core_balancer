@@ -51,8 +51,8 @@ graph TD
     %% Traffic Flow Connections
     Client -->|1. HTTP Request| Route
     Route -->|2. HTTPS Forward| Service
-    Service -->|3. Load Balances Traffic (Round-Robin)| Pod1
-    Service -->|3. Load Balances Traffic (Round-Robin)| Pod2
+    Service -->|3. Load Balances Traffic - Round-Robin| Pod1
+    Service -->|3. Load Balances Traffic - Round-Robin| Pod2
     
     %% Stream Responses back to Client
     Pod1 -.->|4. Stream Response - PDFKit| Client
